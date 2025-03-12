@@ -259,7 +259,7 @@ jobs:
           {
               echo 'FROM fedora:rawhide'
               echo 'RUN dnf -y update'
-              echo 'RUN dnf -y install autoconf gcc gcc-c++ git make'
+              echo 'RUN dnf -y install autoconf awk gcc gcc-c++ git make'
               echo 'RUN dnf clean all'
               echo 'COPY gambit gambit'
               echo 'WORKDIR /gambit'
