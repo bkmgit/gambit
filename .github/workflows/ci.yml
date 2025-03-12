@@ -162,7 +162,7 @@ jobs:
         msys2 -c ": tmate -F -k ${{ secrets.TMATE_API_KEY }} -n ${{ secrets.TMATE_SESSION_PREFIX }}-MSVC > /dev/null 2>&1"
       if: failure() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
 
-  linux:
+  ubuntu:
     runs-on: ubuntu-latest
 
     steps:
@@ -239,7 +239,37 @@ jobs:
         sudo apt-get install tmate
         tmate -F -k ${{ secrets.TMATE_API_KEY }} -n ${{ secrets.TMATE_SESSION_PREFIX }}-linux > /dev/null 2>&1
       if: failure() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
-
+  
+  fedora:
+    name: fedora
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Setup Podman
+        run: |
+          sudo apt update
+          sudo apt-get -y install podman
+          podman pull fedora:rawhide
+      - name: Get source
+        uses: actions/checkout@master
+        with:
+          path: 'gambit'
+      - name: Create container and run tests
+        run: |
+          {
+              echo 'FROM fedora:rawhide'
+              echo 'RUN dnf -y update'
+              echo 'RUN dnf -y install autoconf gcc gcc-c++ git make'
+              echo 'RUN dnf clean all'
+              echo 'COPY gambit gambit'
+              echo 'WORKDIR /gambit'
+              echo 'RUN git submodule update --init --recursive'
+              echo 'RUN configure --enable-single-host'
+              echo 'RUN make'
+              echo 'RUN make check'
+          } > podmanfile
+          podman build --tag fedorarawhide -f ./podmanfile
+    
   macos:
     runs-on: macos-latest
 
@@ -315,7 +345,7 @@ jobs:
 
   ReportResult:
     runs-on: ubuntu-latest
-    needs: [windows-mingw, windows-msvc, linux, macos]
+    needs: [windows-mingw, windows-msvc, ubuntu, macos]
     if: ${{ success() }}
 
     steps:
