@@ -264,7 +264,7 @@ jobs:
               echo 'COPY gambit gambit'
               echo 'WORKDIR /gambit'
               echo 'RUN git submodule update --init --recursive'
-              echo 'RUN configure --enable-single-host'
+              echo 'RUN ./configure --enable-single-host'
               echo 'RUN make'
               echo 'RUN make check'
           } > podmanfile
